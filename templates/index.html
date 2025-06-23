@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SkyTravel Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --accent: #4895ef;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --success: #4cc9f0;
+    --warning: #f72585;
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 800px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+  }
+  
+  .header {
+    background: var(--primary);
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+  }
+  
+  .header h2 {
+    font-weight: 600;
+    font-size: 1.5rem;
+  }
+  
+  .header .status {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+  }
+  
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    background: #4ade80;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  
+  #chatbox {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    background: #f8fafc;
+  }
+  
+  .message {
+    margin-bottom: 1rem;
+    max-width: 80%;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    line-height: 1.4;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .user-message {
+    background: var(--primary);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+  }
+  
+  .bot-message {
+    background: white;
+    color: var(--dark);
+    margin-right: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-bottom-left-radius: 4px;
+  }
+  
+  .input-area {
+    display: flex;
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+  }
+  
+  #user-input {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s;
+  }
+  
+  #user-input:focus {
+    border-color: var(--accent);
+  }
+  
+  #send-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 0 1.5rem;
+    margin-left: 0.5rem;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  #send-btn:hover {
+    background: var(--secondary);
+  }
+  
+  .typing-indicator {
+    display: flex;
+    padding: 0.8rem 1rem;
+    background: white;
+    border-radius: 12px;
+    width: fit-content;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #94a3b8;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typingAnimation 1.4s infinite ease-in-out;
+  }
+  
+  .typing-dot:nth-child(1) { animation-delay: 0s; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  
+  @keyframes typingAnimation {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+  
+  .flight-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid var(--accent);
+  }
+  
+  .flight-card h4 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+  
+  .flight-info {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+  }
+  
+  .airport {
+    flex: 1;
+  }
+  
+  .airport .code {
+    font-weight: 600;
+    color: var(--dark);
+  }
+  
+  .flight-status {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+  
+  .status-active {
+    background: #dcfce7;
+    color: #166534;
+  }
+  
+  .status-scheduled {
+    background: #e0f2fe;
+    color: #075985;
+  }
+  
+  .status-delayed {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  
+  @media (max-width: 600px) {
+    .container {
+      height: 90vh;
+      border-radius: 0;
+    }
+    
+    .message {
+      max-width: 90%;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>SkyTravel Assistant ✈️</h2>
+      <div class="status">
+        <span class="status-dot"></span>
+        <span>Online</span>
+      </div>
+    </div>
+    
+    <div id="chatbox">
+      <div class="message bot-message">
+        Hello! I'm your SkyTravel assistant. How can I help you with your flight plans today?
+      </div>
+    </div>
+    
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Ask about flights, airports, or airlines..." autofocus />
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+<script>
+  const chatbox = document.getElementById("chatbox");
+  const input = document.getElementById("user-input");
+  const sendBtn = document.getElementById("send-btn");
+
+  function appendMessage(text, sender, isCard = false) {
+    const div = document.createElement("div");
+    div.classList.add("message", `${sender}-message`);
+    
+    if (isCard) {
+      div.innerHTML = text;
+    } else {
+      div.textContent = text;
+    }
+    
+    chatbox.appendChild(div);
+    chatbox.scrollTop = chatbox.scrollHeight;
+  }
+
+  function showTypingIndicator() {
+    const div = document.createElement("div");
+    div.classList.add("typing-indicator");
+    div.innerHTML = `
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    `;
+    chatbox.appendChild(div);
+    chatbox.scrollTop = chatbox.scrollHeight;
+    return div;
+  }
+
+  function hideTypingIndicator(indicator) {
+    if (indicator && indicator.parentNode) {
+      indicator.parentNode.removeChild(indicator);
+    }
+  }
+
+  function createFlightCard(flight) {
+    let statusClass = 'status-scheduled';
+    if (flight.status === 'active') statusClass = 'status-active';
+    if (flight.departure.delay > 15 || flight.arrival.delay > 15) statusClass = 'status-delayed';
+    
+    return `
+      <div class="flight-card">
+        <h4>${flight.airline} ${flight.flight_number}</h4>
+        <div class="flight-info">
+          <div class="airport">
+            <div class="code">${flight.departure.iata}</div>
+            <div>${flight.departure.airport}</div>
+            <div>${new Date(flight.departure.scheduled).toLocaleTimeString()}</div>
+          </div>
+          <div>→</div>
+          <div class="airport">
+            <div class="code">${flight.arrival.iata}</div>
+            <div>${flight.arrival.airport}</div>
+            <div>${new Date(flight.arrival.scheduled).toLocaleTimeString()}</div>
+          </div>
+        </div>
+        <div class="flight-status ${statusClass}">
+          ${flight.status.toUpperCase()}${flight.departure.delay > 15 ? ` (DELAYED ${flight.departure.delay}MIN)` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  sendBtn.onclick = async () => {
+    const userText = input.value.trim();
+    if (!userText) return;
+    
+    appendMessage(userText, "user");
+    input.value = "";
+    
+    const typingIndicator = showTypingIndicator();
+    
+    try {
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userText }),
+      });
+      
+      const data = await response.json();
+      hideTypingIndicator(typingIndicator);
+      
+      if (data.flights) {
+        // Handle flight data response
+        appendMessage("Here are the flights I found:", "bot");
+        data.flights.forEach(flight => {
+          appendMessage(createFlightCard(flight), "bot", true);
+        });
+      } else {
+        // Handle regular text response
+        appendMessage(data.response, "bot");
+      }
+    } catch (error) {
+      hideTypingIndicator(typingIndicator);
+      appendMessage("Sorry, I'm having trouble connecting to the flight data service. Please try again later.", "bot");
+    }
+  };
+
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendBtn.onclick();
+  });
+</script>
+</body>
+</html>
